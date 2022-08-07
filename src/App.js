@@ -1,135 +1,132 @@
-import React from 'react'
-import {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 // import {create, getAll} from './services/notes'
-import './styles.css';
+import './styles.css'
 
-import Note from './Note';
-import { getAllNotes } from './services/notes/getAllNotes';
-import { createNote } from './services/notes/createNote';
-import { update } from './services/notes/upDateNote';
+import Note from './Note'
+import { getAllNotes } from './services/notes/getAllNotes'
+import { createNote } from './services/notes/createNote'
+import { update } from './services/notes/upDateNote'
 
-const FormNote = ({newNoteTitle, newNoteBody, handleChange, handleSubmit}) => {
-    return <form onSubmit={handleSubmit}>
-                <input name="title" type="text" onChange={handleChange} value={newNoteTitle} ></input>
-                <input name="body" type="text" onChange={handleChange} value={newNoteBody} ></input>
-                <button>Crear nota</button>
-            </form>
+const FormNote = ({ newNoteTitle, newNoteBody, handleChange, handleSubmit }) => {
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name='title' type='text' onChange={handleChange} value={newNoteTitle} />
+      <input name='body' type='text' onChange={handleChange} value={newNoteBody} />
+      <button>Crear nota</button>
+    </form>
+  )
 }
 
 const App = (props) => {
+  const [notes, setNotes] = useState([])
+  const [newNoteTitle, setNewNoteTitle] = useState('')
+  const [newNoteBody, setNewNoteBody] = useState('')
+  const [showAll, setShowAll] = useState(true)
+  const [loading, setLoading] = useState(false)
 
-    const [notes, setNotes] = useState([])
-    const [newNoteTitle, setNewNoteTitle] = useState('')
-    const [newNoteBody, setNewNoteBody] = useState('')
-    const [showAll, setShowAll] = useState(true)
-    const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    // console.log('useEffect');
+    setLoading(true)
+    getAllNotes().then(notes => {
+      setNotes(notes)
+      setLoading(false)
+    })
+    // Se tiene que ejecutar cuando no cambie nada
+    // No tiene ninguna dependencia
+  }, [])
 
-    useEffect(() => {
-        // console.log('useEffect');
-        setLoading(true)
-        getAllNotes().then(notes => {
-            setNotes(notes)
-            setLoading(false)
-        })
-        // Se tiene que ejecutar cuando no cambie nada
-        // No tiene ninguna dependencia
-    }, [])
-    
-    const handleChange = (event) => {
+  const handleChange = (event) => {
+    if (event.target.name === 'title') {
+      setNewNoteTitle(event.target.value)
+    }
+    if (event.target.name === 'body') {
+      setNewNoteBody(event.target.value)
+    }
+  }
 
-        if (event.target.name === "title"){
-            setNewNoteTitle(event.target.value)
-        }
-        if (event.target.name === "body"){
-            setNewNoteBody(event.target.value)
-        }
-        
+  const handleSubmit = (event) => {
+    event.preventDefault()
+
+    console.log('crear nota')
+
+    const noteToAddToState = {
+      title: newNoteTitle,
+      body: newNoteBody,
+      userId: 1,
+      important: false
     }
 
-    const handleSubmit = (event) => {
-        event.preventDefault()
+    createNote(noteToAddToState).then(newNote => {
+      // setNotes([...notes, noteToAddToState])
+      // setNotes(notes.concat(noteToAddToState))
+      setNotes((prevNotes) => prevNotes.concat(newNote))
+    }).catch(e => {
+      console.error(e)
+    })
 
-        console.log('crear nota')
+    setNewNoteTitle('')
+    setNewNoteBody('')
+  }
 
-        const noteToAddToState = {
-            title: newNoteTitle,
-            body: newNoteBody,
-            userId: 1,
-            important: false
-        }
+  const handleShowAll = () => {
+    setShowAll(() => !showAll)
+  }
 
-        createNote(noteToAddToState).then(newNote => {
-                // setNotes([...notes, noteToAddToState])
-                // setNotes(notes.concat(noteToAddToState))
-                setNotes((prevNotes) => prevNotes.concat(newNote))
-            }).catch(e => {
-                console.error(e)
-            })
-        
-        setNewNoteTitle('')
-        setNewNoteBody('')
-    }
+  const toggleImportanceOf = (id) => {
+    const note = notes.find(n => n.id === id)
+    const changedNote = { ...note, important: !note.important }
 
-    const handleShowAll = () => {
-        setShowAll(() => !showAll)
-    }
-
-    const toggleImportanceOf = (id) => {
-        const note = notes.find(n => n.id === id)
-        const changedNote = { ...note, important: !note.important }
-      
-        update(id, changedNote)
-        .then(returnedNote => {
+    update(id, changedNote)
+      .then(returnedNote => {
         setNotes(notes.map(note => note.id !== id ? note : returnedNote))
-        })
-      }
-    
-    if (typeof notes === "undefined" || notes.length === 0){
-        return (
-            <div>
-                <h1>Notes</h1>
-                {
+      })
+  }
+
+  if (typeof notes === 'undefined' || notes.length === 0) {
+    return (
+      <div>
+        <h1>Notes</h1>
+        {
                 loading ? 'Cargando...' : ''
                 }
-                <p>"No tenemos notas que mostrar"</p>
-                <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteBody} handleChange={handleChange} handleSubmit={handleSubmit}></FormNote>
-            </div>
-        )
-    }
-
-    return (
-        <div>
-            <h1>Notes</h1>
-            <button onClick={handleShowAll}>{ showAll 
-                ? 'Show only important' 
-                : 'Show All' 
-            }
-            </button>
-            <ol>
-            {/* Transforma cada elemento del array */}
-            {/* se pasa una función que se ejecuta con cafa elemento */}
-            {notes
-                .filter(note => {
-                    if (showAll === true) return true
-                    // si showAll es false retona solo las notas que son importantes
-                    return note.important === true
-                })
-                .map(note => (
-                    <Note 
-                        key={note.id} 
-                        {...note} 
-                        toggleImportance={() => toggleImportanceOf(note.id)}
-                    />
-                        
-                ))
-                // <Note key={note.id} content={note.content} date={note.date} />))
-                    
-            }
-            </ol>
-            <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteBody} handleChange={handleChange} handleSubmit={handleSubmit}></FormNote>
-        </div>
-        
+        <p>"No tenemos notas que mostrar"</p>
+        <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteBody} handleChange={handleChange} handleSubmit={handleSubmit} />
+      </div>
     )
+  }
+
+  return (
+    <div>
+      <h1>Notes</h1>
+      <button onClick={handleShowAll}>{showAll
+        ? 'Show only important'
+        : 'Show All'}
+      </button>
+      <ol>
+        {/* Transforma cada elemento del array */}
+        {/* se pasa una función que se ejecuta con cafa elemento */}
+        {notes
+          .filter(note => {
+            if (showAll === true) return true
+            // si showAll es false retona solo las notas que son importantes
+            return note.important === true
+          })
+          .map(note => (
+            <Note
+              key={note.id}
+              {...note}
+              toggleImportance={() => toggleImportanceOf(note.id)}
+            />
+
+          ))
+                // <Note key={note.id} content={note.content} date={note.date} />))
+
+        }
+      </ol>
+      <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteBody} handleChange={handleChange} handleSubmit={handleSubmit} />
+    </div>
+
+  )
 }
 
-export default App;
+export default App

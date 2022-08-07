@@ -6,6 +6,7 @@ import './styles.css';
 import Note from './Note';
 import { getAllNotes } from './services/notes/getAllNotes';
 import { createNote } from './services/notes/createNote';
+import { update } from './services/notes/upDateNote';
 
 const FormNote = ({newNoteTitle, newNoteBody, handleChange, handleSubmit}) => {
     return <form onSubmit={handleSubmit}>
@@ -20,6 +21,7 @@ const App = (props) => {
     const [notes, setNotes] = useState([])
     const [newNoteTitle, setNewNoteTitle] = useState('')
     const [newNoteBody, setNewNoteBody] = useState('')
+    const [showAll, setShowAll] = useState(true)
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
@@ -52,7 +54,8 @@ const App = (props) => {
         const noteToAddToState = {
             title: newNoteTitle,
             body: newNoteBody,
-            userId: 1
+            userId: 1,
+            important: false
         }
 
         createNote(noteToAddToState).then(newNote => {
@@ -66,6 +69,28 @@ const App = (props) => {
         setNewNoteTitle('')
         setNewNoteBody('')
     }
+
+    const handleShowAll = () => {
+        setShowAll(() => !showAll)
+    }
+
+    const toggleImportanceOf = (id) => {
+        const note = notes.find(n => n.id === id)
+        const changedNote = { ...note, important: !note.important }
+      
+        update(id, changedNote)
+        .then(returnedNote => {
+        setNotes(notes.map(note => note.id !== id ? note : returnedNote))
+        })
+        .catch(error => {
+        setErrorMessage(
+            `Note '${note.content}' was already removed from server`
+        )
+        setTimeout(() => {
+            setErrorMessage(null)
+        }, 5000)   
+        })
+      }
     
     if (typeof notes === "undefined" || notes.length === 0){
         return (
@@ -75,10 +100,7 @@ const App = (props) => {
                 loading ? 'Cargando...' : ''
                 }
                 <p>"No tenemos notas que mostrar"</p>
-                <form onSubmit={handleSubmit}>
-                <input type="text" onChange={handleChange} value={newNoteTitle} ></input>
-                <button>Crear nota</button>
-                </form>
+                <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteBody} handleChange={handleChange} handleSubmit={handleSubmit}></FormNote>
             </div>
         )
     }
@@ -86,21 +108,33 @@ const App = (props) => {
     return (
         <div>
             <h1>Notes</h1>
+            <button onClick={handleShowAll}>{ showAll 
+                ? 'Show only important' 
+                : 'Show All' 
+            }
+            </button>
             <ol>
             {/* Transforma cada elemento del array */}
             {/* se pasa una función que se ejecuta con cafa elemento */}
             {notes
+                .filter(note => {
+                    if (showAll === true) return true
+                    // si showAll es false retona solo las notas que son importantes
+                    return note.important === true
+                })
                 .map(note => (
-                    <Note key={note.id} {...note} />))
-                    // <Note key={note.id} content={note.content} date={note.date} />))
+                    <Note 
+                        key={note.id} 
+                        {...note} 
+                        toggleImportance={() => toggleImportanceOf(note.id)}
+                    />
+                        
+                ))
+                // <Note key={note.id} content={note.content} date={note.date} />))
+                    
             }
             </ol>
             <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteBody} handleChange={handleChange} handleSubmit={handleSubmit}></FormNote>
-            {/* <form onSubmit={handleSubmit}>
-                <input name="title" type="text" onChange={handleChange} value={newNoteTitle} ></input>
-                <input name="body" type="text" onChange={handleChange} value={newNoteBody} ></input>
-                <button>Crear nota</button>
-            </form> */}
         </div>
         
     )

@@ -117,11 +117,8 @@ const App = (props) => {
               {...note}
               toggleImportance={() => toggleImportanceOf(note.id)}
             />
-
-          ))
-                // <Note key={note.id} content={note.content} date={note.date} />))
-
-        }
+          ))}
+        {/* // <Note key={note.id} content={note.content} date={note.date} />)) */}
       </ol>
       <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteBody} handleChange={handleChange} handleSubmit={handleSubmit} />
     </div>

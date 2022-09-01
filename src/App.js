@@ -7,11 +7,11 @@ import { getAllNotes } from './services/notes/getAllNotes'
 import { createNote } from './services/notes/createNote'
 import { update } from './services/notes/upDateNote'
 
-const FormNote = ({ newNoteTitle, newNoteBody, handleChange, handleSubmit }) => {
+const FormNote = ({ newNoteTitle, newNoteContent, handleChange, handleSubmit }) => {
   return (
     <form onSubmit={handleSubmit}>
       <input name='title' type='text' onChange={handleChange} value={newNoteTitle} />
-      <input name='body' type='text' onChange={handleChange} value={newNoteBody} />
+      <input name='content' type='text' onChange={handleChange} value={newNoteContent} />
       <button>Crear nota</button>
     </form>
   )
@@ -20,7 +20,7 @@ const FormNote = ({ newNoteTitle, newNoteBody, handleChange, handleSubmit }) => 
 const App = (props) => {
   const [notes, setNotes] = useState([])
   const [newNoteTitle, setNewNoteTitle] = useState('')
-  const [newNoteBody, setNewNoteBody] = useState('')
+  const [newNoteContent, setNewNoteContent] = useState('')
   const [showAll, setShowAll] = useState(true)
   const [loading, setLoading] = useState(false)
 
@@ -39,8 +39,8 @@ const App = (props) => {
     if (event.target.name === 'title') {
       setNewNoteTitle(event.target.value)
     }
-    if (event.target.name === 'body') {
-      setNewNoteBody(event.target.value)
+    if (event.target.name === 'content') {
+      setNewNoteContent(event.target.value)
     }
   }
 
@@ -51,7 +51,7 @@ const App = (props) => {
 
     const noteToAddToState = {
       title: newNoteTitle,
-      body: newNoteBody,
+      body: newNoteContent,
       userId: 1,
       important: false
     }
@@ -65,7 +65,7 @@ const App = (props) => {
     })
 
     setNewNoteTitle('')
-    setNewNoteBody('')
+    setNewNoteContent('')
   }
 
   const handleShowAll = () => {
@@ -90,7 +90,7 @@ const App = (props) => {
                 loading ? 'Cargando...' : ''
                 }
         <p>"No tenemos notas que mostrar"</p>
-        <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteBody} handleChange={handleChange} handleSubmit={handleSubmit} />
+        <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteContent} handleChange={handleChange} handleSubmit={handleSubmit} />
       </div>
     )
   }
@@ -120,7 +120,7 @@ const App = (props) => {
           ))}
         {/* // <Note key={note.id} content={note.content} date={note.date} />)) */}
       </ol>
-      <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteBody} handleChange={handleChange} handleSubmit={handleSubmit} />
+      <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteContent} handleChange={handleChange} handleSubmit={handleSubmit} />
     </div>
 
   )

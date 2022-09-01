@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-export const create = ({ title, body, userId }) => {
+export const create = ({ title, content, userId }) => {
   return axios
     .post('https://jsonplaceholder.typicode.com/posts',
-      { title, body, userId })
+      { title, content, userId })
     .then(response => {
       const { data } = response
       return data

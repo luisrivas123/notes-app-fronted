@@ -51,7 +51,7 @@ const App = (props) => {
 
     const noteToAddToState = {
       title: newNoteTitle,
-      body: newNoteContent,
+      content: newNoteContent,
       userId: 1,
       important: false
     }
@@ -90,7 +90,7 @@ const App = (props) => {
                 loading ? 'Cargando...' : ''
                 }
         <p>"No tenemos notas que mostrar"</p>
-        <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteContent} handleChange={handleChange} handleSubmit={handleSubmit} />
+        <FormNote newNoteTitle={newNoteTitle} newNoteContent={newNoteContent} handleChange={handleChange} handleSubmit={handleSubmit} />
       </div>
     )
   }
@@ -120,7 +120,7 @@ const App = (props) => {
           ))}
         {/* // <Note key={note.id} content={note.content} date={note.date} />)) */}
       </ol>
-      <FormNote newNoteTitle={newNoteTitle} newNoteBody={newNoteContent} handleChange={handleChange} handleSubmit={handleSubmit} />
+      <FormNote newNoteTitle={newNoteTitle} newNoteContent={newNoteContent} handleChange={handleChange} handleSubmit={handleSubmit} />
     </div>
 
   )
